@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS access_logs  (
+CREATE TABLE access_logs  (
     ts TIMESTAMP(3) NOT NULL,
     ip BIGINT NOT NULL,
     request VARCHAR(255) NOT NULL,
@@ -7,9 +7,7 @@ CREATE TABLE IF NOT EXISTS access_logs  (
     INDEX idx_ts_ip (ts, ip)
 );
 
-TRUNCATE TABLE access_logs;
-
-CREATE TABLE IF NOT EXISTS blocked (
+CREATE TABLE blocked (
      ip BIGINT NOT NULL,
      reason VARCHAR(255)
 );

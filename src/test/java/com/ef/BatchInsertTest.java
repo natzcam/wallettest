@@ -18,7 +18,7 @@ public class BatchInsertTest {
         List<String[]> batch = new ArrayList<>();
         batch.add(new String[]{"2017-01-01 00:00:11.763", "192.168.234.82", "\"GET / HTTP/1.1\"", "200", "\"swcd (unknown version) CFNetwork/808.2.16 Darwin/15.6.0\""});
         batch.add(new String[]{"2017-01-01 00:00:11.763", "192.168.234.82", "\"GET / HTTP/1.1\"", "200", "\"swcd (unknown version) CFNetwork/808.2.16 Darwin/15.6.0\""});
-        BatchInsert insert = new BatchInsert(2, 2, dataSource, batch, 1);
+        BatchInsert insert = new BatchInsert(0, 2, dataSource, batch, 1);
         BatchResult result = insert.call();
 
         assertTrue(result.isSuccess());
@@ -31,7 +31,7 @@ public class BatchInsertTest {
             List<String[]> batch = new ArrayList<>();
             batch.add(new String[]{"2017-01-01 00:00:11.763", "192.168.234.82", "\"GET / HTTP/1.1\"", "hello world", "\"swcd (unknown version) CFNetwork/808.2.16 Darwin/15.6.0\""});
             batch.add(new String[]{"2017-01-01 00:00:11.763", "192.168.234.82", "\"GET / HTTP/1.1\"", "200", "\"swcd (unknown version) CFNetwork/808.2.16 Darwin/15.6.0\""});
-            BatchInsert insert = new BatchInsert(2, 2, dataSource, batch, 1);
+            BatchInsert insert = new BatchInsert(0, 2, dataSource, batch, 1);
             insert.call();
             throw new RuntimeException("Should not pass");
         } catch (BatchException be) {
@@ -46,7 +46,7 @@ public class BatchInsertTest {
             List<String[]> batch = new ArrayList<>();
             batch.add(new String[]{"2017-01-01 00:00:11.763", "192.168.234.82", "\"GET / HTTP/1.1\"", "200", "\"swcd (unknown version) CFNetwork/808.2.16 Darwin/15.6.0\""});
             batch.add(new String[]{"2017-01-0100:00:11.763", "192.168.234.82", "\"GET / HTTP/1.1\"", "200", "\"swcd (unknown version) CFNetwork/808.2.16 Darwin/15.6.0\""});
-            BatchInsert insert = new BatchInsert(2, 2, dataSource, batch, 1);
+            BatchInsert insert = new BatchInsert(0, 2, dataSource, batch, 1);
             insert.call();
             throw new RuntimeException("Should not pass");
         } catch (BatchException be) {

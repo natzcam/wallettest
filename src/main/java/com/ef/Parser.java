@@ -17,7 +17,6 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.Option;
 
@@ -29,7 +28,7 @@ import static picocli.CommandLine.Option;
         description = "Checks if an IP made requests over the threshold!",
         version = "1.0-SNAPSHOT"
 )
-class Parser implements Callable<String> {
+class Parser implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(Parser.class);
 
     @Option(names = {"--startDate"}, description = "start date-time", required = true)
@@ -46,13 +45,13 @@ class Parser implements Callable<String> {
 
     @Option(names = "--debug", description = "show verbose logging (default: ${DEFAULT-VALUE})")
     private boolean debug = false;
-    
+
     @Option(names = "--config", description = "app configuration file (default: ${DEFAULT-VALUE})")
     private File appConfig = new File("app.properties");
-    
+
     @Option(names = "--datasource", description = "datasource configuration file (default: ${DEFAULT-VALUE})")
     private File dataSourceConfig = new File("datasource.properties");
-    
+
     private DataSource createDataSource(Properties config) {
         // use connection pooling because we are in multithreaded territory
         HikariConfig hikariConfig = new HikariConfig(config);
@@ -68,39 +67,55 @@ class Parser implements Callable<String> {
         }
     }
 
+    private void cleanLogTable(DataSource dataSource) throws SQLException, IOException {
+        try (
+                Connection conn = dataSource.getConnection();
+                Statement stmt = conn.createStatement()
+        ) {
+            stmt.execute("TRUNCATE TABLE access_logs");
+        }
+    }
+
     @Override
-    public String call() throws Exception {
+    public void run() {
 
         // by default level is info, but if debug option is set, raise the root logger to debug level
         if (debug) {
             ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
             root.setLevel(Level.DEBUG);
         }
-        
-        Config config = new Config(appConfig, dataSourceConfig);
-        DataSource dataSource = createDataSource(config.getDataSourceProperties());
 
-        // ensure tables and clean data
-        prepareTables(dataSource);
+        try {
+            Config config = new Config(appConfig, dataSourceConfig);
+            DataSource dataSource = createDataSource(config.getDataSourceProperties());
 
-        if (accessLog != null) {
-            if (accessLog.exists()) {
-                if (accessLog.isFile()) {
-                    DBLoader dbLoader = new DBLoader(dataSource, config.getThreads(), config.getQueueLimit());
-                    dbLoader.load(accessLog, config.getDelimiter(), config.getBatchSize());
+            // ensure tables
+            prepareTables(dataSource);
+
+            if (accessLog != null) {
+                if (accessLog.exists()) {
+                    if (accessLog.isFile()) {
+
+                        //clean data
+                        cleanLogTable(dataSource);
+
+                        DBLoader dbLoader = new DBLoader(dataSource, config.getThreads(), config.getQueueLimit());
+                        dbLoader.load(accessLog, config.getDelimiter(), config.getBatchSize());
+                    } else {
+                        log.warn("--accesslog is not a file, skipping batch load");
+                    }
                 } else {
-                    log.warn("--accesslog is not a file, skipping batch load");
+                    log.warn("--accesslog does not exist, skipping batch load");
                 }
             } else {
-                log.warn("--accesslog does not exist, skipping batch load");
+                log.warn("You did not specify --accesslog, skipping batch load");
             }
-        } else {
-            log.warn("You did not specify --accesslog, skipping batch load");
-        }
 
-        IpChecker ipChecker = new IpChecker(dataSource);
-        ipChecker.query(startDate, duration, threshold);
-        return "";
+            IpChecker ipChecker = new IpChecker(dataSource);
+            ipChecker.query(startDate, duration, threshold);
+        } catch (Exception e) {
+            log.error("Error running Parser", e);
+        }
     }
 
 
@@ -110,8 +125,6 @@ class Parser implements Callable<String> {
         cmd.registerConverter(LocalDateTime.class,
                 (String value) -> LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd.HH:mm:ss")));
         int exitCode = cmd.execute(args);
-        String result = cmd.getExecutionResult();
-        System.out.println(result);
         System.exit(exitCode);
     }
 }

@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter;
  * @author natc <nathanielcamomot@gmail.com>
  */
 class IpChecker {
-    private static final Logger console = LoggerFactory.getLogger("console");
     private static final Logger log = LoggerFactory.getLogger(IpChecker.class);
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final DataSource dataSource;
@@ -41,18 +40,16 @@ class IpChecker {
                             "HAVING hits >= " + threshold
             );
 
-            console.info("Blocked IPs: ");
+            System.out.println("Blocked IPs: ");
             while (result.next()) {
-                console.info("{} - {} requests", result.getString(2), result.getInt(3));
+                System.out.println(result.getString(2) + " - " + result.getInt(3) + " requests");
                 insert.setLong(1, result.getLong(1));
                 insert.setString(2, result.getInt(2) + " - " + result.getInt(3) +
-                        " requests (startDate=" + startDate.format(formatter)+ ", duration=" + duration+ ", threshold=" + threshold + ")");
+                        " requests (startDate=" + startDate.format(formatter) + ", duration=" + duration + ", threshold=" + threshold + ")");
                 insert.addBatch();
             }
             insert.executeBatch();
         }
         return "test";
     }
-
-
 }

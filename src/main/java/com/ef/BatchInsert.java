@@ -19,7 +19,7 @@ class BatchInsert implements Callable<BatchResult> {
     private final List<String[]> batch;
     private final int successCode;
 
-    public BatchInsert(long startLine, int endLine, DataSource dataSource, List<String[]> batch, int successCode) {
+    public BatchInsert(long startLine, long endLine, DataSource dataSource, List<String[]> batch, int successCode) {
         this.startLine = startLine;
         this.endLine = endLine;
         this.dataSource = dataSource;

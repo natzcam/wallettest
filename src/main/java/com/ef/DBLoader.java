@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ class DBLoader {
     }
 
     public void load(File logFile, String delimiter, int batchSize) throws IOException {
-        log.info("Using {} threads to load {}", threads, logFile);
+        log.debug("Using {} threads to load {}", threads, logFile);
 
         List<String[]> buffer = new ArrayList<>(batchSize);
         long lineNum = 0;
@@ -67,10 +68,10 @@ class DBLoader {
         try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
             while ((line = br.readLine()) != null) {
                 lineNum++;
-                if(!line.isEmpty()){
+                if (!line.isEmpty()) {
                     buffer.add(line.split(delimiter));
                     if (buffer.size() == batchSize) {
-                        executor.submit(new BatchInsert(lineNum, batchSize, dataSource, new ArrayList<>(buffer), Statement.SUCCESS_NO_INFO));
+                        executor.submit(new BatchInsert(lineNum - batchSize, lineNum, dataSource, new ArrayList<>(buffer), Statement.SUCCESS_NO_INFO));
                         batchCount++;
                         buffer.clear();
                     }
@@ -78,17 +79,20 @@ class DBLoader {
             }
 
             if (!buffer.isEmpty()) {
-                executor.submit(new BatchInsert(lineNum, batchSize, dataSource, buffer, Statement.SUCCESS_NO_INFO));
+                executor.submit(new BatchInsert(lineNum - batchSize, lineNum, dataSource, buffer, Statement.SUCCESS_NO_INFO));
                 batchCount++;
             }
         }
 
+        System.out.println("===============================================");
+        long done = 0;
         while (batchCount > 0) {
             try {
                 // block until a callable completes
                 BatchResult result = executor.take().get();
                 batchCount--;
                 log.debug(result.getMessage());
+                System.out.write(("\r" + (done += result.getResults().length) + "/" + lineNum).getBytes(StandardCharsets.UTF_8));
             } catch (ExecutionException e) {
                 // BatchException
                 log.error("Batch failed", e.getCause());
@@ -97,6 +101,7 @@ class DBLoader {
                 return;
             }
         }
-
+        System.out.println(" Done with load using " + threads + " threads!");
+        System.out.println("===============================================");
     }
 }
