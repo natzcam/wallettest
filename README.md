@@ -1,12 +1,12 @@
 #### Setup MySQL
-If you have docker, start a mysql docker container running on port 33060 (to not conflict with local msyql) with user wallettest, pw: wallettest
+If you have docker, start a mysql docker container running on port 4406 (to not conflict with local msyql) with user wallettest, pw: wallettest
 ```sh
 docker run --name wallettest \
 -e MYSQL_ROOT_PASSWORD=wallettest \
 -e MYSQL_DATABASE=wallettest \
 -e MYSQL_USER=wallettest \
 -e MYSQL_PASSWORD=wallettest \
--p 33060:3306 \
+-p 4406:3306 \
 -d mysql:5.7.26
 ```
 If not, create a schema, username, password with your MySQL instance and take note of it
@@ -21,7 +21,7 @@ https://github.com/natzcam/wallettest/releases/download/v1/wallettest-1.0-SNAPSH
 #password={password}
 
 # Docker
-jdbcUrl=jdbc:mysql://localhost:33060/wallettest
+jdbcUrl=jdbc:mysql://localhost:4406/wallettest
 username=wallettest
 password=wallettest
 ```
