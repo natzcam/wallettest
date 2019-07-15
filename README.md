@@ -11,6 +11,9 @@ docker run --name wallettest \
 ```
 If not, create a schema, username, password with your MySQL instance and take note of it
 
+#### Download and unzip
+https://github.com/natzcam/wallettest/releases/download/v1/wallettest-1.0-SNAPSHOT.zip
+
 #### Fill `datasource.properties` with the correct values
 ```properties
 # Docker
@@ -23,7 +26,13 @@ username={user}
 password={password}
 ```
 
+#### Run the program
+```sh
+java -cp target/parser.jar com.ef.Parser --startDate=2017-01-01.13:00:00 --duration=daily --threshold=250 --accesslog=access.log
+```
+
 #### Create the jar
+Clone the repository then run
 unix
 ```sh
 ./mvnw clean package
@@ -31,10 +40,6 @@ unix
 win
 ```sh
 ./mvnw.cmd clean package
-```
-#### Run the program
-```sh
-java -cp target/parser.jar com.ef.Parser --startDate=2017-01-01.13:00:00 --duration=daily --threshold=250 --accesslog=access.log
 ```
 
 #### Schema
