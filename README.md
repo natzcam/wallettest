@@ -83,7 +83,7 @@ mvnw.cmd clean package
 ```
 
 #### Notes
-1. It seems that the load is slow with 1 thread so created a multi-threaded load.
+1. It seems that the load is slow with 1 thread so created a multi-threaded load that can complete it in seconds.
 2. The date condition uses BETWEEN so dates are inclusive
 3. IPs are stored as numbers
 4. --help to show help:
