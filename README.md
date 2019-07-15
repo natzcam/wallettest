@@ -81,3 +81,28 @@ cd wallettest
 rem build windows
 mvnw.cmd clean package
 ```
+
+#### Notes
+1. It seems that the load is slow with 1 thread so created a multi-threaded load.
+2. The date condition uses BETWEEN so dates are inclusive
+3. IPs are stored as numbers
+4. --help to show help:
+```sh
+Missing required options [--startDate=<startDate>, --duration=<duration>, --threshold=<threshold>]
+Usage: <main class> [--debug] [--accesslog=<accessLog>] [--config=<appConfig>]
+                    [--datasource=<dataSourceConfig>] --duration=<duration>
+                    --startDate=<startDate> --threshold=<threshold>
+Checks if an IP made requests over the threshold!
+      --accesslog=<accessLog>
+                             access log
+      --config=<appConfig>   app configuration file (default: app.properties)
+      --datasource=<dataSourceConfig>
+                             datasource configuration file (default: datasource.
+                               properties)
+      --debug                show verbose logging (default: false)
+      --duration=<duration>  hourly, daily
+      --startDate=<startDate>
+                             start date-time
+      --threshold=<threshold>
+                             threshold
+```
