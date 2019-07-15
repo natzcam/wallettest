@@ -16,34 +16,23 @@ https://github.com/natzcam/wallettest/releases/download/v1/wallettest-1.0-SNAPSH
 
 #### Fill `datasource.properties` with the correct values
 ```properties
-# Docker
-# jdbcUrl=jdbc:mysql://localhost:33060/wallettest
-# username=wallettest
-# password=wallettest
+#jdbcUrl=jdbc:mysql://localhost:{port}/{schema}
+#username={user}
+#password={password}
 
-jdbcUrl=jdbc:mysql://localhost:{port}/{schema}
-username={user}
-password={password}
+# Docker
+jdbcUrl=jdbc:mysql://localhost:33060/wallettest
+username=wallettest
+password=wallettest
 ```
 
 #### Run the program
 ```sh
-java -cp target/parser.jar com.ef.Parser --startDate=2017-01-01.13:00:00 --duration=daily --threshold=250 --accesslog=access.log
-```
-
-#### Create the jar
-Clone the repository then run
-unix
-```sh
-./mvnw clean package
-```
-win
-```sh
-./mvnw.cmd clean package
+java -cp parser.jar com.ef.Parser --startDate=2017-01-01.13:00:00 --duration=daily --threshold=250 --accesslog=access.log
 ```
 
 #### Schema
-The program will create the necessary tables automatically. SQL is here:
+The program will create the necessary tables automatically. Create table SQL is here:
 [`src/main/resources/create_tables.sql`](src/main/resources/create_tables.sql)
 
 #### Search SQL
@@ -76,4 +65,19 @@ threads=20
 
 # the thread pool queue limit
 queueLimit=5000
+```
+
+#### Clone, run, package
+```sh
+git clone git@github.com:natzcam/wallettest.git
+cd wallettest
+./mvnw exec:java -Dexec.mainClass=com.ef.Parser -Dexec.args="--debug --accesslog=files/access.log --startDate=2017-01-01.13:00:00 --duration=daily --threshold=250"
+```
+```sh
+# build unix
+./mvnw clean package
+```
+```cmd
+rem build windows
+mvnw.cmd clean package
 ```

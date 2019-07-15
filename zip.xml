@@ -18,6 +18,14 @@
             <outputDirectory></outputDirectory>
             <destName>parser.jar</destName>
         </file>
+        <file>
+            <source>app.properties</source>
+            <outputDirectory></outputDirectory>
+        </file>
+        <file>
+            <source>datasource.properties</source>
+            <outputDirectory></outputDirectory>
+        </file>
     </files>
     <dependencySets>
         <dependencySet>
